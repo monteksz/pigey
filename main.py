@@ -7,38 +7,18 @@ import time
 # Initialize colorama
 init(autoreset=True)
 
-def nama():
-    art_lines = [
-        "   _____         _   _  _____ _______ _    _         _______     __",
-        "  / ____|  /\\   | \\ | |/ ____|__   __| |  | |  /\\   |  __ \\ \\   / /",
-        " | (___   /  \\  |  \\| | |       | |  | |  | | /  \\  | |__) \\ \\_/ / ",
-        "  \\___ \\ / /\\ \\ | . ` | |       | |  | |  | |/ /\\ \\ |  _  / \\   /  ",
-        "  ____) / ____ \\| |\\  | |____   | |  | |__| / ____ \\| | \\ \\  | |   ",
-        " |_____/_/    \\_\\_| \\_|\\_____|  |_|   \\____/_/    \\_\\_|  \\_\\ |_|   ",
-        "                                                                   ",
-        "                                                                   "
-    ]
-
-    max_length = max(len(line) for line in art_lines)
-
-    border = '#' * (max_length + 4)
-
-    print(border)
-    for line in art_lines:
-        print(f"# {line} #")
-    print(border)
-
-    print(f"{Fore.GREEN}Terima kasih Telah Menggunakan Bot dari Monteksz X Sanctuary Jangan Lupa Bintangnya ^^{Fore.RESET}")
-    print(f"{Fore.GREEN}Cek Bot Lainnya di https://github.com/monteksz{Fore.RESET}")
-    print(f"{Fore.GREEN}=================================================================================================={Fore.RESET}")
-
-nama()
-
 # Function to read data from akun.txt
 def read_akun_file(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
-        akun_data_list = [parse_qs(line.strip()) for line in lines if line.strip()]
+        akun_data_list = []
+        for line in lines:
+            if line.strip():
+                parsed_data = parse_qs(line.strip())
+                if 'query_id' in parsed_data:
+                    akun_data_list.append((parsed_data, 'type1'))
+                elif 'chat_instance' in parsed_data:
+                    akun_data_list.append((parsed_data, 'type2'))
         return akun_data_list
 
 # Function to clear the current line in the console
@@ -70,18 +50,28 @@ akun_file_path = 'akun.txt'
 # Read data from akun.txt
 akun_data_list = read_akun_file(akun_file_path)
 
-def process_akun(akun_data):
+def process_akun(akun_data, akun_type):
     # Step 1: Send OPTIONS request
     url = "https://api.prod.piggypiggy.io/tgBot/login"
     headers = {
         "Content-Type": "application/json"
     }
-    params = {
-        "query_id": akun_data["query_id"][0],
-        "user": akun_data["user"][0],
-        "auth_date": akun_data["auth_date"][0],
-        "hash": akun_data["hash"][0]
-    }
+    
+    if akun_type == 'type1':
+        params = {
+            "query_id": akun_data["query_id"][0],
+            "user": akun_data["user"][0],
+            "auth_date": akun_data["auth_date"][0],
+            "hash": akun_data["hash"][0]
+        }
+    elif akun_type == 'type2':
+        params = {
+            "user": akun_data["user"][0],
+            "chat_instance": akun_data["chat_instance"][0],
+            "chat_type": akun_data["chat_type"][0],
+            "auth_date": akun_data["auth_date"][0],
+            "hash": akun_data["hash"][0]
+        }
 
     response_options = requests.options(url, headers=headers, params=params)
 
@@ -242,8 +232,8 @@ def process_akun(akun_data):
         print(Fore.RED + "OPTIONS request failed with status code:", response_options.status_code)
 
 while True:
-    for akun_data in akun_data_list:
-        process_akun(akun_data)
+    for akun_data, akun_type in akun_data_list:
+        process_akun(akun_data, akun_type)
     
     print(Fore.CYAN + "Semua akun Berhasil Di Check Cooldown...")
     animate_waiting_message(15 * 60)  # Cooldown for 15 minutes
