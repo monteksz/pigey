@@ -1,4 +1,4 @@
-<h1 align="center">Auto Claim UEX ( DWYOR )</h1>
+<h1 align="center">Auto Claim PIGEY ( DWYOR )</h1>
 
 <img align="center" src="https://github.com/user-attachments/assets/b6391407-9ef1-413e-8401-31473dfa0539">
 
