@@ -1,0 +1,2 @@
+# pigey
+auto claim salary
